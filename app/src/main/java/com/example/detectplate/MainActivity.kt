@@ -11,9 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.FileUtils
 import android.util.Log
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.Toast
 import com.github.dhaval2404.imagepicker.ImagePicker
 
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -26,7 +23,7 @@ import retrofit2.Response
 import java.io.File
 import android.provider.MediaStore
 import android.view.View
-import android.widget.TextView
+import android.widget.*
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -35,20 +32,19 @@ import org.json.JSONObject
 
 
 class MainActivity : AppCompatActivity() {
-    lateinit var image:ImageView
-    lateinit var no:TextView
-    lateinit var click_picture:Button
-    lateinit var owner_detail:Button
-    lateinit var simple_text:TextView
+
+    lateinit var no:EditText
+    lateinit var click_picture:ImageView
+    lateinit var submit:Button
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        owner_detail=findViewById(R.id.owner_detail)
-        click_picture=findViewById(R.id.button)
-        simple_text=findViewById(R.id.simpletext)
-        image=findViewById(R.id.image)
-        no=findViewById(R.id.no)
+
+        click_picture=findViewById(R.id.scan)
+        submit = findViewById(R.id.submit)
+
+        no=findViewById(R.id.car_no)
         click_picture.setOnClickListener {
             ImagePicker.with(this)
                 .crop()	    			//Crop image(Optional), Check Customization for more option
@@ -57,12 +53,22 @@ class MainActivity : AppCompatActivity() {
                 .start()
         }
 
-        owner_detail.setOnClickListener {
+        submit.setOnClickListener(){
 
-            val intent=Intent(this,DisplayOwnerDetail::class.java)
-            startActivity(intent)
-
+            var carNo=no.text.toString()
+            if (!carNo.isEmpty()) {
+                val intent = Intent(this, DisplayOwnerDetail::class.java)
+                intent.putExtra("carNo", carNo)
+                startActivity(intent)
+            }
         }
+
+//        owner_detail.setOnClickListener {
+//
+//            val intent=Intent(this,DisplayOwnerDetail::class.java)
+//            startActivity(intent)
+//
+//        }
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -71,7 +77,7 @@ class MainActivity : AppCompatActivity() {
             val uri: Uri = data?.data!!
 
             // Use Uri object instead of File to avoid storage permissions
-            image.setImageURI(uri)
+//            image.setImageURI(uri)
             uploadFile(fileUri = uri)
         } else if (resultCode == ImagePicker.RESULT_ERROR) {
             Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
@@ -97,13 +103,13 @@ class MainActivity : AppCompatActivity() {
                     val jsonObject=JSONObject(message)
                        val jsonarray= jsonObject.getJSONArray("results")
                       val no_plate=  jsonarray.getJSONObject(0).getString("plate")
-                        no.text=no_plate.uppercase()
+                        no.setText(no_plate.uppercase())
                     }
                     //Toast.makeText(this@MainActivity,"${message}",Toast.LENGTH_LONG).show()
                     Log.v("Mainactivity","success ${message}")
-                    click_picture.visibility=View.GONE
-                    owner_detail.visibility=View.VISIBLE
-                    simple_text.visibility=View.VISIBLE
+//                    click_picture.visibility=View.GONE
+//                    owner_detail.visibility=View.VISIBLE
+//                    simple_text.visibility=View.VISIBLE
 
                 }
             }
